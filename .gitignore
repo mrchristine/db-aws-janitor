@@ -1,0 +1,6 @@
+config
+.idea
+*.pyc
+logs
+dep
+*.zip
