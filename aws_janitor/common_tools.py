@@ -2,13 +2,13 @@ import boto3, pytz, json, os
 from datetime import datetime, timezone
 
 
-def get_account_id(conf="../config/job.conf"):
+def get_account_id(conf="config/job.conf"):
     with open(conf, "r") as fp:
         config = json.loads(fp.read())
     return config.get('account_id')
 
 
-def get_s3_bucket(conf="../config/job.conf"):
+def get_s3_bucket(conf="config/job.conf"):
     with open(conf, "r") as fp:
         config = json.loads(fp.read())
     return config.get('s3_bucket')
