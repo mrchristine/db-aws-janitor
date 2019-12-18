@@ -64,10 +64,15 @@ def terminate_rds_instances(rds_list, region='us-west-2'):
                 # otherwise its an database composed of instances, which is why we need both deletes
                 if rds['db_name'] != rds['cluster_id']:
                     del_db = client.delete_db_cluster(DBClusterIdentifier=rds['cluster_id'], SkipFinalSnapshot=True)
+
                 is_rds_alive = False
             except ClientError as e:
                 print(e)
                 if "is already being deleted" in str(e):
                     is_rds_alive = False
                 else:
-                    client.modify_db_instance(DBInstanceIdentifier=rds['db_name'], DeletionProtection=False)
+                    # RDS is part of a cluster, must disable term protection on cluster
+                    if rds['db_name'] != rds['cluster_id']:
+                        client.modify_db_cluster(DBClusterIdentifier=rds['cluster_id'], DeletionProtection=False)
+                    else:
+                        client.modify_db_instance(DBInstanceIdentifier=rds['db_name'], DeletionProtection=False)
