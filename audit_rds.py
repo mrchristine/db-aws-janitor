@@ -43,8 +43,12 @@ def audit_rds(enable_terminate=False):
                         num_rds += 1
                         fp.write(json.dumps(rds))
                         fp.write('\n')
-                        # terminate RDS running for more than 7 days
-                        if rds['runtime_days'] > 7:
+                        has_databricks_email = has_databricks_owner_tag(rds['tags'])
+                        # delete instances without an owner tag w/ a databricks email
+                        if not has_databricks_email:
+                            rds_ids.append(rds)
+                        # terminate RDS running for more than 10 days
+                        if rds['runtime_days'] > 10:
                             rds_ids.append(rds)
                     else:
                         num_excluded_rds += 1
@@ -69,9 +73,8 @@ def audit_rds(enable_terminate=False):
 
 def lambda_handler(event, context):
     # False will not terminate instances
-    # True will shutdown resources over 7 days
-    audit_rds(False)
-    # Print Spark Versions
+    # True will shutdown resources over 10 days
+    audit_rds(True)
     message = "Completed audit of RDS instances to S3!"
     return {
         'message': message

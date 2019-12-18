@@ -1,4 +1,4 @@
-import boto3, pytz, json, os
+import boto3, pytz, json, os, re
 from datetime import datetime, timezone
 
 
@@ -6,6 +6,19 @@ def get_account_id(conf="config/job.conf"):
     with open(conf, "r") as fp:
         config = json.loads(fp.read())
     return config.get('account_id')
+
+
+def has_databricks_owner_tag(tag_list):
+    import re
+    regex = '^[\w.+\-]+@databricks.com$'
+    for tag in tag_list:
+        if tag['Key'].lower() == 'owner':
+            if(re.search(regex,email)):
+                print("Valid Email: {0}".format(email))
+                return True
+            else:
+                print("Invalid Email: {0}".format(email))
+    return False
 
 
 def get_s3_bucket(conf="config/job.conf"):

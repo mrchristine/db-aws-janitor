@@ -42,6 +42,9 @@ def get_redshift_details(x, region_name='unknown'):
 
 
 def terminate_redshift_instances(redshift_list, region):
+    if not redshift_list:
+        print("Empty Redshift list provided.")
+        return []
     client = boto3.client('redshift', region_name=region)
     for rs in redshift_list:
         print("Terminating {0}".format(rs['cluster_name']))

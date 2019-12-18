@@ -76,6 +76,12 @@ def get_ec2_instance_details(x, region_name='unknown'):
 
 
 def terminate_instance_ids(i_ids_list, region='us-west-2'):
+    # AWS instance filter API returns all instances if empty list is provided!!
+    # Need to EXPLICITLY return if empty list is provided
+    if not i_ids_list:
+        print("Emtpy Instance id list.")
+        return []
+    
     ec2 = boto3.resource('ec2', region_name=region)
     ec2_client = boto3.client('ec2', region_name=region)
     # flag to determine if all instances have been terminated

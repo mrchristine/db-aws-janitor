@@ -48,6 +48,9 @@ def get_rds_details(x, region_name='unknown'):
 
 
 def terminate_rds_instances(rds_list, region='us-west-2'):
+    if not rds_list:
+        print("Empty RDS list provided.")
+        return []
     client = boto3.client('rds', region_name=region)
     for rds in rds_list:
         print("\nDB NAME: {0}\n".format(rds['db_name']))

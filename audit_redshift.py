@@ -32,8 +32,12 @@ def audit_redshift(enable_terminate=False):
                     num_x+=1
                     fp.write(json.dumps(info))
                     fp.write('\n')
-                    # terminate RDS running for more than 7 days
-                    if info['runtime_days'] > 7:
+                    # delete instances without an owner tag w/ a databricks email
+                    has_databricks_email = has_databricks_owner_tag(info['tags'])
+                    if not has_databricks_email:
+                        x_ids.append(info)
+                    # terminate RDS running for more than 10 days
+                    if info['runtime_days'] > 10:
                         x_ids.append(info)
                 else:
                     num_excluded_x += 1
@@ -58,9 +62,8 @@ def audit_redshift(enable_terminate=False):
 
 def lambda_handler(event, context):
     # False will not terminate instances
-    # True will shutdown resources over 7 days
-    audit_redshift(False)
-    # Print Spark Versions
+    # True will shutdown resources over 10 days
+    audit_redshift(True)
     message = "Completed audit of Redshift clusters to S3!"
     return {
         'message': message

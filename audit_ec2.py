@@ -39,14 +39,20 @@ def audit_ec2(enable_terminate = False):
         for x in instances:
             with open(local_log, 'a') as fp, open(local_excluded_log, 'a') as fp_ex:
                 x_info = get_ec2_instance_details(x, region_name=region)
-                # if not a Databricks cluster, log to local file before upload to s3
+                # if not a Databricks cluster, 
+                # if not tagged with keep_alive
+                # log to local file before upload to s3
                 if ((not x_info['is_cluster']) and
                     (not x_info['is_keepalive'])):
                     num_ec2 += 1
                     fp.write(json.dumps(x_info))
                     fp.write("\n")
-                    # get the instance ids that have been running for 7 days
-                    if x_info['runtime_days'] > 7:
+                    has_databricks_email = has_databricks_owner_tag(x_info['tags'])
+                    # delete instances without an owner tag w/ a databricks email
+                    if not has_databricks_email:
+                        instance_ids.append(x_info['instance_id'])
+                    # get the instance ids that have been running for 10 days
+                    if x_info['runtime_days'] > 10:
                         instance_ids.append(x_info['instance_id'])
                 else:
                     fp_ex.write(json.dumps(x_info))
@@ -69,7 +75,7 @@ def audit_ec2(enable_terminate = False):
 def lambda_handler(event, context):
     # False will only log the resources to s3
     # True will terminate instances
-    audit_ec2(False)
+    audit_ec2(True)
     message = "Completed audit of EC2 to S3 bucket logs!"
     return {
         'message' : message
