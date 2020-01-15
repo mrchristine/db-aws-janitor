@@ -13,6 +13,7 @@ def has_databricks_owner_tag(tag_list):
     regex = '^[\w.+\-]+@databricks.com$'
     for tag in tag_list:
         if tag['Key'].lower() == 'owner':
+            email = tag['Value']
             if(re.search(regex,email)):
                 print("Valid Email: {0}".format(email))
                 return True
