@@ -48,8 +48,9 @@ def audit_rds(enable_terminate=False):
                         if not has_databricks_email:
                             rds_ids.append(rds)
                         # terminate RDS running for more than 10 days
-                        if rds['runtime_days'] > 10:
-                            rds_ids.append(rds)
+                        # removing this policy for now
+                        #if rds['runtime_days'] > 10:
+                        #    rds_ids.append(rds)
                     else:
                         num_excluded_rds += 1
                         fp_ex.write(json.dumps(rds))

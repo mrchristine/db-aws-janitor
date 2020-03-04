@@ -52,8 +52,8 @@ def audit_ec2(enable_terminate = False):
                     if not has_databricks_email:
                         instance_ids.append(x_info['instance_id'])
                     # get the instance ids that have been running for 10 days
-                    if x_info['runtime_days'] > 10:
-                        instance_ids.append(x_info['instance_id'])
+                    #if x_info['runtime_days'] > 10:
+                    #    instance_ids.append(x_info['instance_id'])
                 else:
                     fp_ex.write(json.dumps(x_info))
                     fp_ex.write("\n")

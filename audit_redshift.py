@@ -37,8 +37,8 @@ def audit_redshift(enable_terminate=False):
                     if not has_databricks_email:
                         x_ids.append(info)
                     # terminate RDS running for more than 10 days
-                    if info['runtime_days'] > 10:
-                        x_ids.append(info)
+                    #if info['runtime_days'] > 10:
+                    #    x_ids.append(info)
                 else:
                     num_excluded_x += 1
                     fp_ex.write(json.dumps(info))
