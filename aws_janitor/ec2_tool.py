@@ -50,6 +50,12 @@ def is_running(x_state):
         return True
     return False
 
+def is_ec2_run_or_stop(x_state):
+    # check if the code is running, stopping, or stopped. 
+    # https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_InstanceState.html
+    if x_state.get('Code', '') in (16, 64, 80):
+        return True
+    return False
 
 def get_ec2_instance_details(x, region_name='unknown'):
     now = datetime.now(timezone.utc)

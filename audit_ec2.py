@@ -39,25 +39,30 @@ def audit_ec2(enable_terminate = False):
         for x in instances:
             with open(local_log, 'a') as fp, open(local_excluded_log, 'a') as fp_ex:
                 x_info = get_ec2_instance_details(x, region_name=region)
-                # if not a Databricks cluster, 
-                # if not tagged with keep_alive
-                # log to local file before upload to s3
-                if ((not x_info['is_cluster']) and
-                    (not x_info['is_keepalive'])):
-                    num_ec2 += 1
-                    fp.write(json.dumps(x_info))
-                    fp.write("\n")
-                    has_databricks_email = has_databricks_owner_tag(x_info['tags'])
-                    # delete instances without an owner tag w/ a databricks email
-                    if not has_databricks_email:
-                        instance_ids.append(x_info['instance_id'])
-                    # get the instance ids that have been running for 10 days
-                    #if x_info['runtime_days'] > 10:
-                    #    instance_ids.append(x_info['instance_id'])
-                else:
-                    fp_ex.write(json.dumps(x_info))
-                    fp_ex.write("\n")
-                    num_ec2_excluded += 1
+                if is_ec2_run_or_stop(x_info['state']):
+                    # if not a Databricks cluster, 
+                    # if not tagged with keep_alive
+                    # log to local file before upload to s3
+                    if ((not x_info['is_cluster']) and
+                        (not x_info['is_keepalive'])):
+                        num_ec2 += 1
+                        fp.write(json.dumps(x_info))
+                        fp.write("\n")
+                        tag_list = x_info.get('tags', None)
+                        if tag_list:
+                            has_databricks_email = has_databricks_owner_tag(tag_list)
+                        else:
+                            has_databricks_email = False
+                        # delete instances without an owner tag w/ a databricks email
+                        if not has_databricks_email:
+                            instance_ids.append(x_info['instance_id'])
+                        # get the instance ids that have been running for 10 days
+                        #if x_info['runtime_days'] > 10:
+                        #    instance_ids.append(x_info['instance_id'])
+                    else:
+                        fp_ex.write(json.dumps(x_info))
+                        fp_ex.write("\n")
+                        num_ec2_excluded += 1
     
         if num_ec2 > 0:
             with open(local_log, 'r') as fp_read:
